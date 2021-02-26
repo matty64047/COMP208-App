@@ -5,9 +5,9 @@ import requests
 
 mydb = mysql.connector.connect(
   host="localhost",
-  user="root",
-  password="matthew123",
-  database="jobs"
+  user="",
+  password="",
+  database=""
 )
 
 app = Flask(__name__)
