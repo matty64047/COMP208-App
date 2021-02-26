@@ -1,4 +1,4 @@
-# flutter_app
+# bridge
 
 A new Flutter application.
 
