@@ -110,10 +110,12 @@ def authenticate_user(user_id, password):
 
 def sql_query(query, data):
     mycursor.execute(query, data)
+    mydb.commit()
     return mycursor.fetchone()
 
 def sql_query_all(query, data):
     mycursor.execute(query, data)
+    mydb.commit()
     return mycursor.fetchall()
 
 if __name__ == '__main__':
