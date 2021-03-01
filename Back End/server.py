@@ -1,20 +1,14 @@
 from flask import Flask, jsonify, request
 import json
-import mysql.connector
+import sqlite3
 
-"""Establish database connection - 
+"""
+Establish database connection - 
 these are just the login details for my personal MySQL server
 if you want to run this code you'll have to make the database on your system 
 using the SQL template in the GitHub directory and replace these details with 
-your own login details"""
-mydb = mysql.connector.connect( 
-  host="localhost", 
-  user="root",
-  password="matthew123",
-  database="comp208"
-)
-
-mycursor = mydb.cursor(buffered=True, dictionary=True)
+your own login details
+"""
 
 app = Flask(__name__)
 
@@ -22,7 +16,9 @@ app = Flask(__name__)
 errors = ["Email already in use", "There is no account assosciated with this email address", "Incorrect password","Already favourited"]
 
 
-"""I've tried to keep server responses consistent to make them easier to work with in the flutter app
+"""
+
+I've tried to keep server responses consistent to make them easier to work with in the flutter app
 they are generally formatted as -
     jsonify({
         "error":True/False, #a flag to tell the client if the command has succeeded or not
@@ -59,7 +55,7 @@ def get_jobs():
     if valid == True:
         city = request.form.get('city')
         salary = request.form.get('salary')
-        jobs = sql_query_all("select * from Jobs where city = %s AND salary = %s ", (city, salary,))
+        jobs = sql_query_all("select * from Jobs where city = ? AND salary = ? ", (city, salary,))
         return jsonify({
             "error":False,
             "response":jobs 
@@ -86,12 +82,12 @@ def favourite():
     if valid == True:
         job_id = request.form.get('job_id')
         try:
-            response = sql_query("INSERT into Favourites(UserID, JobID) values (%s, %s);", (user_id, job_id))
+            response = sql_query("INSERT into Favourites(UserID, JobID) values (?, ?);", (user_id, job_id))
             return jsonify({
                 "error" : False,
                 "response" : "Added to favourites"
             })
-        except mysql.connector.errors.IntegrityError:
+        except:
             return jsonify({
                 "error" : True,
                 "response" : errors[3]
@@ -116,7 +112,7 @@ def unfavourite():
     valid = authenticate_user(user_id, password)
     if valid == True:
         job_id = request.form.get('job_id')
-        response = sql_query("DELETE FROM Favourites WHERE JobID = %s AND UserID= %s;", (job_id, user_id,))
+        response = sql_query("DELETE FROM Favourites WHERE JobID = ? AND UserID= ?;", (job_id, user_id,))
         return jsonify({
             "error" : False,
             "response" : "Removed from favourites"
@@ -139,7 +135,7 @@ def get_favourites():
     password = request.form.get('password')
     valid = authenticate_user(user_id, password)
     if valid == True:
-        favourites = sql_query_all("select * from Favourites natural join Jobs where UserID=%s;", (user_id,))
+        favourites = sql_query_all("select * from Favourites natural join Jobs where UserID=?;", (user_id,))
         return jsonify({
             "error":False,
             "response":favourites
@@ -170,8 +166,8 @@ def new_user():
     email = request.form.get('email')
     password = request.form.get('password')
     try:
-        response = sql_query("insert into Users (LastName, FirstName, Address, University, Email, Password, Type) Values (%s,%s,%s,%s,%s,%s,%s);", (last_name, first_name, address, university, email, password,"User"))
-    except mysql.connector.errors.IntegrityError: #email has already been used
+        response = sql_query("insert into Users (LastName, FirstName, Address, University, Email, Password, Type) Values (?,?,?,?,?,?,?);", (last_name, first_name, address, university, email, password,"User"))
+    except: #email has already been used
         return jsonify({
             "error" : True,
             "response" : errors[0]
@@ -196,7 +192,7 @@ Required form fields are:
 def get_user():
     email = request.form.get('email')
     password = request.form.get('password')
-    user = sql_query("select * from Users where Email=%s;", (email,)) #get details for user with this email
+    user = sql_query("select * from Users where Email=?;", (email,)) #get details for user with this email
     if user: # user exists
         valid = authenticate_user(user["UserID"], password)
         if valid == True:
@@ -218,7 +214,7 @@ checks that the user is allowed to make the request by comparing the password se
 POST request is the same as what is saved in the database
 """
 def authenticate_user(user_id, password):
-    response = sql_query("select Password from Users where UserID=%s;", (user_id,))
+    response = sql_query("select Password from Users where UserID=?;", (user_id,))
     if response:
         if response["Password"] == password:
             return True #correct password - user is authenticated
@@ -240,21 +236,25 @@ and returns a tuple of the first match
 "query" is the SQL statement to send 
 "data" is any parameters needed for that string
 
-example: sql_query("select Password from Users where UserID=%s;", (user_id,))
+example: sql_query("select Password from Users where UserID=?;", (user_id,))
 """
 def sql_query(query, data):
-    mycursor.execute(query, data)
-    mydb.commit()
-    return mycursor.fetchone()
+    with sqlite3.connect('comp208.db') as mydb:
+        mycursor = mydb.cursor()
+        mycursor.execute(query, data)
+        mydb.commit()
+        return mycursor.fetchone()
 
 """
 sends a query in the form of a string to the SQL connection specified above
 and returns a list of tuples of all the matching rows from the database
 """
 def sql_query_all(query, data):
-    mycursor.execute(query, data)
-    mydb.commit()
-    return mycursor.fetchall()
+    with sqlite3.connect('comp208.db') as mydb:
+        mycursor = mydb.cursor()
+        mycursor.execute(query, data)
+        mydb.commit()
+        return mycursor.fetchall()
 
 if __name__ == '__main__':
     app.run(host = '0.0.0.0', debug=True)
