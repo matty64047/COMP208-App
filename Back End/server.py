@@ -24,7 +24,10 @@ def get_jobs():
         city = request.form.get('city')
         salary = request.form.get('salary')
         jobs = sql_query_all("select * from Jobs where city = %s AND salary = %s ", (city, salary,))
-        return jsonify(jobs)
+        return jsonify({
+            "error":False,
+            "response":jobs
+        })
     else: 
         return valid
 
@@ -38,12 +41,13 @@ def favourite():
         try:
             response = sql_query("INSERT into Favourites(UserID, JobID) values (%s, %s);", (user_id, job_id))
             return jsonify({
-                "error" : "false"
+                "error" : False,
+                "response" : ""
             })
         except mysql.connector.errors.IntegrityError:
             return jsonify({
                 "error" : True,
-                "message" : "Already Favourited"
+                "response" : "Already Favourited"
             })
     else: 
         return valid
@@ -57,7 +61,8 @@ def unfavourite():
         job_id = request.form.get('job_id')
         response = sql_query("DELETE FROM Favourites WHERE JobID = %s AND UserID= %s;", (job_id, user_id,))
         return jsonify({
-            "error" : "false"
+            "error" : False,
+            "response" : ""
         })
     else: 
         return valid
@@ -68,8 +73,11 @@ def get_favourites():
     password = request.form.get('password')
     valid = authenticate_user(user_id, password)
     if valid == True:
-        favourites = sql_query_all("select distinct JobID, FID, DT from Favourites where UserID=%s;", (user_id,))
-        return jsonify(favourites)
+        favourites = sql_query_all("select distinct * from Favourites natural join Jobs where UserID=%s;", (user_id,))
+        return jsonify({
+            "error":False,
+            "response":favourites
+        })
     else: 
         return valid
 
@@ -85,10 +93,12 @@ def new_user():
         response = sql_query("insert into Users (LastName, FirstName, Address, University, Email, Password, Type) Values (%s,%s,%s,%s,%s,%s,%s);", (last_name, first_name, address, university, email, password,"User"))
     except mysql.connector.errors.IntegrityError:
         return jsonify({
-            "response" : "Error: Email already in use"
+            "error" : True,
+            "response" : errors[0]
         }) 
     return jsonify({
-        "response" : "Success"
+        "error" : False,
+        "response" : ""
     })
 
 @app.route('/get_user', methods=['POST'])
@@ -99,12 +109,16 @@ def get_user():
     if user:
         valid = authenticate_user(user["UserID"], password)
         if valid == True:
-            return jsonify(user)
+            return jsonify({
+                "error" : False,
+                "response" : user
+            })
         else: 
             return valid
     else:
         return jsonify({
-            "response" : "Error: Account does not exist"
+            "error" : True,
+            "response" : errors[1]
         })
 
 def authenticate_user(user_id, password):
