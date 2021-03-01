@@ -1,5 +1,3 @@
-drop table favourites;
-
 create table Users (
     UserID int AUTO_INCREMENT unique,
     LastName varchar(255),
