@@ -13,6 +13,8 @@ mycursor = mydb.cursor(buffered=True)
 
 app = Flask(__name__)
 
+errors = ["Email already in use", "Email does not exist", "Incorrect password", ]
+
 @app.route('/get_jobs', methods=['POST'])
 def get_jobs():
     user_id = request.form.get('user_id')
@@ -21,7 +23,8 @@ def get_jobs():
     if valid == True:
         city = request.form.get('city')
         salary = request.form.get('salary')
-        sql_query_all("select * from Jobs where city = %s AND salary = %s ", (city, salary, ))
+        jobs = sql_query_all("select * from Jobs where city = %s AND salary = %s ", (city, salary, ))
+        return jsonify(jobs)
     else: 
         return valid
 
@@ -71,19 +74,22 @@ def new_user():
     university = request.form.get('university')
     email = request.form.get('email')
     password = request.form.get('password')
-    user_id = sql_query("select MAX(UserID) from Users", ())[0]+1
-    sql_query("insert into Users (UserID, LastName, FirstName, Address, University, Email, Password, Type) Values (%s,%s,%s,%s,%s,%s,%s,%s);", (user_id, last_name, first_name, address, university, email, password,"User",))
+    try:
+        response = sql_query("insert into Users (LastName, FirstName, Address, University, Email, Password, Type) Values (%s,%s,%s,%s,%s,%s,%s);", (last_name, first_name, address, university, email, password,"User"))
+    except mysql.connector.errors.IntegrityError:
+        return jsonify({
+            "response" : "Error: Email already in use"
+        }) 
     return jsonify({
-        "user_id" : user_id
+        "response" : "Success"
     })
 
 @app.route('/get_user', methods=['POST'])
 def get_user():
-    user_id = request.form.get('user_id')
+    email = request.form.get('email')
     password = request.form.get('password')
-    valid = authenticate_user(user_id, password)
-    if valid == True:
-        user = sql_query("select * from Users where UserID=%s;", (user_id,))
+    user = sql_query("select * from Users where Email=%s;", (email,))
+    if user:
         user_dict = {
             "user_id" : user[0],
             "last_name" : user[1],
@@ -94,19 +100,31 @@ def get_user():
             "password" : user[6],
             "type" : user[7]
         }
-        return jsonify(user_dict)
-    else: 
-        return valid
+        valid = authenticate_user(user_dict["user_id"], password)
+        if valid == True:
+            return jsonify(user_dict)
+        else: 
+            return valid
+    else:
+        return jsonify({
+            "response" : "Error: Account does not exist"
+        })
 
 def authenticate_user(user_id, password):
     response = sql_query("select Password from Users where UserID=%s;", (user_id,))
     if response:
         if response[0] == password:
-            return True 
+            return True
         else:
-            return "Incorrect Password"
+            return jsonify({
+                "error" : True,
+                "message" : errors[2]
+            })
     else: 
-        return "User does not exist"
+        return jsonify({
+            "error" : True,
+            "message" : errors[1]
+        })
 
 def sql_query(query, data):
     mycursor.execute(query, data)
