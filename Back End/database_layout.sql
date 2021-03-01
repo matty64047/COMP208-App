@@ -1,3 +1,5 @@
+drop table favourites;
+
 create table Users (
     UserID int AUTO_INCREMENT unique,
     LastName varchar(255),
@@ -13,5 +15,8 @@ create table Users (
 create table Favourites (
 	UserID int,
     JobID int,
+    FID int auto_increment unique,
+    DT datetime DEFAULT NOW(), 
+    UNIQUE KEY (UserID,JobID),
 	FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );
