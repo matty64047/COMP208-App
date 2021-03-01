@@ -18,5 +18,6 @@ create table Favourites (
     FID int auto_increment unique,
     DT datetime DEFAULT NOW(), 
     UNIQUE KEY (UserID,JobID),
-	FOREIGN KEY (UserID) REFERENCES Users(UserID)
+	FOREIGN KEY (UserID) REFERENCES Users(UserID),
+    FOREIGN KEY (JobID) REFERENCES Jobs(JobID)
 );
