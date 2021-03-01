@@ -196,7 +196,7 @@ Required form fields are:
 def get_user():
     email = request.form.get('email')
     password = request.form.get('password')
-    user = sql_query("select * from Users where Email=%s;", (email,)) #get user details for user with this email
+    user = sql_query("select * from Users where Email=%s;", (email,)) #get details for user with this email
     if user: # user exists
         valid = authenticate_user(user["UserID"], password)
         if valid == True:
