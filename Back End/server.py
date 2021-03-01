@@ -9,7 +9,7 @@ mydb = mysql.connector.connect(
   database="comp208"
 )
 
-mycursor = mydb.cursor(buffered=True)
+mycursor = mydb.cursor(buffered=True, dictionary=True)
 
 app = Flask(__name__)
 
@@ -23,7 +23,7 @@ def get_jobs():
     if valid == True:
         city = request.form.get('city')
         salary = request.form.get('salary')
-        jobs = sql_query_all("select * from Jobs where city = %s AND salary = %s ", (city, salary, ))
+        jobs = sql_query_all("select * from Jobs where city = %s AND salary = %s ", (city, salary,))
         return jsonify(jobs)
     else: 
         return valid
@@ -35,8 +35,16 @@ def favourite():
     valid = authenticate_user(user_id, password)
     if valid == True:
         job_id = request.form.get('job_id')
-        response = sql_query("INSERT into Favourites(UserID, JobID) values (%s, %s);", (user_id, job_id,))
-        return(str(response))
+        try:
+            response = sql_query("INSERT into Favourites(UserID, JobID) values (%s, %s);", (user_id, job_id))
+            return jsonify({
+                "error" : "false"
+            })
+        except mysql.connector.errors.IntegrityError:
+            return jsonify({
+                "error" : True,
+                "message" : "Already Favourited"
+            })
     else: 
         return valid
 
@@ -48,7 +56,9 @@ def unfavourite():
     if valid == True:
         job_id = request.form.get('job_id')
         response = sql_query("DELETE FROM Favourites WHERE JobID = %s AND UserID= %s;", (job_id, user_id,))
-        return(str(response))
+        return jsonify({
+            "error" : "false"
+        })
     else: 
         return valid
 
@@ -58,11 +68,8 @@ def get_favourites():
     password = request.form.get('password')
     valid = authenticate_user(user_id, password)
     if valid == True:
-        favourites = sql_query_all("select JobID from Favourites where UserID=%s;", (user_id,))
-        _favourites = []
-        for favourite in favourites:
-            _favourites.append(favourite[0])
-        return str(_favourites)
+        favourites = sql_query_all("select distinct JobID, FID, DT from Favourites where UserID=%s;", (user_id,))
+        return jsonify(favourites)
     else: 
         return valid
 
@@ -90,19 +97,9 @@ def get_user():
     password = request.form.get('password')
     user = sql_query("select * from Users where Email=%s;", (email,))
     if user:
-        user_dict = {
-            "user_id" : user[0],
-            "last_name" : user[1],
-            "first_name" : user[2],
-            "address" : user[3],
-            "university" : user[4],
-            "email" : user[5],
-            "password" : user[6],
-            "type" : user[7]
-        }
-        valid = authenticate_user(user_dict["user_id"], password)
+        valid = authenticate_user(user["UserID"], password)
         if valid == True:
-            return jsonify(user_dict)
+            return jsonify(user)
         else: 
             return valid
     else:
@@ -113,7 +110,7 @@ def get_user():
 def authenticate_user(user_id, password):
     response = sql_query("select Password from Users where UserID=%s;", (user_id,))
     if response:
-        if response[0] == password:
+        if response["Password"] == password:
             return True
         else:
             return jsonify({
