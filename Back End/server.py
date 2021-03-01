@@ -2,14 +2,6 @@ from flask import Flask, jsonify, request
 import json
 import sqlite3
 
-"""
-Establish database connection - 
-these are just the login details for my personal MySQL server
-if you want to run this code you'll have to make the database on your system 
-using the SQL template in the GitHub directory and replace these details with 
-your own login details
-"""
-
 app = Flask(__name__)
 
 #rather than rewriting the error messages which will be sent to the client each time I've just put them all here
@@ -21,10 +13,12 @@ errors = ["Email already in use", "There is no account assosciated with this ema
 I've tried to keep server responses consistent to make them easier to work with in the flutter app
 they are generally formatted as -
     jsonify({
-        "error":True/False, #a flag to tell the client if the command has succeeded or not
-        "response": response #if the command succeeded this will either be a 
-        success message or any information that has been requested, if not it 
-        will be an error message from the list above
+        "error":True/False,      #a flag to tell the client if the command has succeeded or not
+        
+        
+        "response": response     #if the command succeeded this will either be a 
+                                 success message or any information that has been requested, if not it 
+                                 will be an error message from the list above
     })
 """
 
@@ -192,7 +186,8 @@ Required form fields are:
 def get_user():
     email = request.form.get('email')
     password = request.form.get('password')
-    user = sql_query("select * from Users where Email=?;", (email,)) #get details for user with this email
+    user = sql_query_all("select * from Users where Email=?;", (email,)) #get details for user with this email
+    user = sql_query("select * from Users;", (email,))
     if user: # user exists
         valid = authenticate_user(user["UserID"], password)
         if valid == True:
@@ -240,6 +235,7 @@ example: sql_query("select Password from Users where UserID=?;", (user_id,))
 """
 def sql_query(query, data):
     with sqlite3.connect('comp208.db') as mydb:
+        mydb.row_factory = sqlite3.Row
         mycursor = mydb.cursor()
         mycursor.execute(query, data)
         mydb.commit()
@@ -251,6 +247,7 @@ and returns a list of tuples of all the matching rows from the database
 """
 def sql_query_all(query, data):
     with sqlite3.connect('comp208.db') as mydb:
+        mydb.row_factory = sqlite3.Row
         mycursor = mydb.cursor()
         mycursor.execute(query, data)
         mydb.commit()
