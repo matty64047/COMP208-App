@@ -187,9 +187,10 @@ def get_user():
     email = request.form.get('email')
     password = request.form.get('password')
     user = sql_query_all("select * from Users where Email=?;", (email,)) #get details for user with this email
-    user = sql_query("select * from Users;", (email,))
+    print(user[0]["_id"])
+    #user = sql_query("select * from Users;", ())
     if user: # user exists
-        valid = authenticate_user(user["UserID"], password)
+        valid = authenticate_user(user[0]["_id"], password)
         if valid == True:
             return jsonify({
                 "error" : False,
@@ -209,7 +210,7 @@ checks that the user is allowed to make the request by comparing the password se
 POST request is the same as what is saved in the database
 """
 def authenticate_user(user_id, password):
-    response = sql_query("select Password from Users where UserID=?;", (user_id,))
+    response = sql_query("select Password from Users where _id=?;", (user_id,))
     if response:
         if response["Password"] == password:
             return True #correct password - user is authenticated
@@ -231,7 +232,7 @@ and returns a tuple of the first match
 "query" is the SQL statement to send 
 "data" is any parameters needed for that string
 
-example: sql_query("select Password from Users where UserID=?;", (user_id,))
+example: sql_query("select Password from Users where _id=?;", (user_id,))
 """
 def sql_query(query, data):
     with sqlite3.connect('comp208.db') as mydb:

@@ -1,5 +1,5 @@
 create table Users (
-    UserID int AUTO_INCREMENT unique,
+    _id integer PRIMARY KEY,
     LastName varchar(255),
     FirstName varchar(255),
     Address varchar(255),
@@ -7,15 +7,14 @@ create table Users (
     Email varchar(255) unique not null,
     Password varchar(255),
     Type varchar(255),
-    PRIMARY KEY (UserID)
 );
     
 create table Favourites (
 	UserID int,
     JobID int,
-    FID int auto_increment unique,
+    _id integer PRIMARY KEY,
     DT datetime DEFAULT NOW(), 
     UNIQUE KEY (UserID,JobID),
-	FOREIGN KEY (UserID) REFERENCES Users(UserID),
-    FOREIGN KEY (JobID) REFERENCES Jobs(JobID)
+	FOREIGN KEY (UserID) REFERENCES Users(_id),
+    FOREIGN KEY (JobID) REFERENCES Jobs(_id)
 );
