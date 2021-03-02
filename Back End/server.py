@@ -1,3 +1,4 @@
+from sqlite3.dbapi2 import IntegrityError
 from flask import Flask, jsonify, request
 import json
 import sqlite3
@@ -44,8 +45,7 @@ def get_jobs():
         user_id = request.form.get('user_id') #retrieves value from POST request with key 'user_id'
         password = request.form.get('password')
         authenticate_user(user_id, password)
-        #city = request.form.get('city')
-        #salary = request.form.get('salary')
+        #for key,val in request.form.get("filters"):
         jobs = sql_query_all("select * from Jobs", ())
         return jsonify({
             "error":False,
@@ -76,6 +76,11 @@ def favourite():
         return jsonify({
             "error" : False,
             "response" : "Added to favourites"
+        })
+    except sqlite3.IntegrityError:
+        return jsonify({
+            "error" : False,
+            "response" : "Already in favourites"
         })
     except Exception as error:
         return exception_handler(error)
@@ -152,15 +157,16 @@ def new_user():
         university = request.form.get('university')
         email = request.form.get('email')
         password = request.form.get('password')
-        response = sql_query("insert into Users (LastName, FirstName, Address, University, Email, Password) Values (?,?,?,?,?,?);", (last_name, first_name, address, university, email, password))
+        try:
+            response = sql_query("insert into Users (LastName, FirstName, Address, University, Email, Password) Values (?,?,?,?,?,?);", (last_name, first_name, address, university, email, password))
+        except IntegrityError:
+            raise EmailAlreadyExistsError
         return jsonify({
             "error" : False,
             "response" : "New user added"
         })
     except Exception as error:
         return exception_handler(error)
-    except TypeError:
-        return exception_handler("That email is not assosciated with a user account")
 
 
 
@@ -204,18 +210,12 @@ Required form fields are:
 def rebuild_database():
     try:
         email = request.form.get('email')
-        print("1")
         password = request.form.get('password')
-        print("2")
         user = sql_query("select * from Users where Email=?;", (email,)) #get details for user with this email
-        print("3")
         if not user:
-            print("4")
             raise UserDoesNotExistError
-        print("5")
         authenticate_user(user["_id"], password)
-        print("6")
-        if (user["Type"] !="admin"):
+        if (user["Type"] !="Admin"):
             raise NotAnAdminError
         create_database_tables()
         populate_jobs_table()
@@ -224,7 +224,7 @@ def rebuild_database():
             "response" : "Success"
         })
     except Exception as error:
-        exception_handler(error)
+        return exception_handler(error)
 
 """
 checks that the user is allowed to make the request by comparing the password sent in the
@@ -306,17 +306,8 @@ def create_database_tables():
     c.close()
     conn.close()
     
-
 """
-If an exception is thrown while dealing with a client request, this function is called to respond to the client
-with a meaningful response
-
-"error" - a human readable error message
-"code" - a code which can be easily interpreted by the client code
-
-call with name paramaters - 
-e.g. exception_handler(code=1)
-
+Custom Exception
 """
 
 class Error(Exception):
@@ -325,7 +316,7 @@ class Error(Exception):
 
 class UserDoesNotExistError(Error):
     code = 1
-    message = "There is no account associated with that email address"
+    message = "That user does not exist"
     pass
 
 class WrongPasswordError(Error):
@@ -338,19 +329,26 @@ class NotAnAdminError(Error):
     message = "You do not have permission for that action"
     pass
 
+class EmailAlreadyExistsError(Error):
+    code = 4
+    message = "An account with that email address has already been created"
+    pass
+
+
+
+"""
+If an exception is thrown while dealing with a client request, this function is called to respond to the client
+with a meaningful response
+"""
 def exception_handler(error):
-    print(7)
-    response = {"error":True}
+    #response = {"error":True}
+    print(error.__class__.__name__)
     try:
-        print(8)
         response["code"] = error.code
         response["response"] = error.message
-        print(9)
     except:
-        print(10)
         response["code"] = 404
         response["response"] = "Unspecified error"
-        print(11)
     return jsonify(response)
 
 if __name__ == '__main__':
