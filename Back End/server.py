@@ -335,14 +335,13 @@ class EmailAlreadyExistsError(Error):
     pass
 
 
-
 """
 If an exception is thrown while dealing with a client request, this function is called to respond to the client
 with a meaningful response
 """
 def exception_handler(error):
-    #response = {"error":True}
-    print(error.__class__.__name__)
+    response = {"error":True}
+    #print(error.__class__.__name__)
     try:
         response["code"] = error.code
         response["response"] = error.message
