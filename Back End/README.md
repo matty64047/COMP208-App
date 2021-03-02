@@ -1,5 +1,8 @@
-# COMP208 App 
-TODO:
+# Back End 
+
+Server script and database for the COMP208 project app
+
+## TODO:
     - Forgot password function:
         - generate one time token to change password
         - send email to user's email address with that token
