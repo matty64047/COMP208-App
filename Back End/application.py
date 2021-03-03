@@ -5,7 +5,7 @@ import sqlite3
 from tqdm import tqdm
 import os
 
-app = Flask(__name__)
+application = app = Flask(__name__)
 
 """
 I've tried to keep server responses consistent to make them easier to work with in the flutter app
@@ -19,7 +19,9 @@ they are generally formatted as -
                                  will be an error message from the list above
     })
 """
-
+@app.route('/', methods=['GET'])
+def index():
+    return "Server is running correctly"
 
 """
 queries SQL database with filters provided in POST request and returns list of appropriate jobs
@@ -351,4 +353,4 @@ def exception_handler(error):
     return jsonify(response)
 
 if __name__ == '__main__':
-    app.run(host = '0.0.0.0', debug=True)
+    app.run(debug=True)
