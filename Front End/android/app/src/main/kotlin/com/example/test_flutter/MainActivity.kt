@@ -1,4 +1,4 @@
-package com.example.bridge
+package com.example.test_flutter
 
 import io.flutter.embedding.android.FlutterActivity
 

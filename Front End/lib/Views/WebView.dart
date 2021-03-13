@@ -1,8 +1,6 @@
+import 'package:test_flutter/data/Job.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter/cupertino%20(1).dart';
-import 'package:flutter/material%20(1).dart';
 import 'package:flutter/material.dart';
-import 'main.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class CardHero extends StatefulWidget {
@@ -35,7 +33,7 @@ class _CardHeroState extends State<CardHero> {
             actions: [
               MaterialButton(
                 onPressed: () {
-                  launchURL(job.titleURL);
+                  launchURL(job.summary);
                 },
                 child: Text("Open in Browser"),
               ),
@@ -57,7 +55,7 @@ class _CardHeroState extends State<CardHero> {
           body: Stack(children: <Widget>[
             WebView(
               //key: UniqueKey(),
-              initialUrl: job.titleURL,
+              initialUrl: job.summary,
               javascriptMode: JavascriptMode.unrestricted,
               onPageFinished: (finish) {
                 setState(() {
@@ -67,8 +65,8 @@ class _CardHeroState extends State<CardHero> {
             ),
             isLoading
                 ? Center(
-                    child: CircularProgressIndicator(),
-                  )
+              child: CircularProgressIndicator(),
+            )
                 : Stack(),
           ]),
         ));
