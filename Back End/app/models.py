@@ -68,6 +68,8 @@ class Job(db.Model, Serializer):
     days_ago = db.Column(db.String(30), unique=False, nullable=True)
     image = db.Column(db.String(255), unique=False, nullable=True)
     logo = db.Column(db.String(255), unique=False, nullable=True)
+    rating = db.Column(db.Integer, unique=False, nullable=True)
+    rating_count = db.Column(db.Integer, unique=False, nullable=True)
     work_type = db.Column(db.String(255), unique=False, nullable=True)
     university = db.Column(db.String(255), unique=False, nullable=True)
     added = db.Column(db.DateTime, default=datetime.datetime.utcnow)
@@ -78,7 +80,3 @@ class Job(db.Model, Serializer):
     def serialize(self):
         d = Serializer.serialize(self)
         return d
-
-    def __init__(self, dictionary):
-        for k, v in dictionary.items():
-            setattr(self, k, v)

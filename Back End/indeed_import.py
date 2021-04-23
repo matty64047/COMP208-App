@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 from app import app, db
 from itertools import cycle
-from app.models import Job
+from app.models import Job, User
 import json
 import time
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -135,6 +135,8 @@ def get_page_data(links):
             "description" : "",
             "company" : "",
             "location" : "",
+            "rating" : "",
+            "rating_count" : None,
             "days_ago" : "",
             "image" : "",
             "logo" : "",
@@ -177,7 +179,7 @@ def get_page_data(links):
         except:
             pass
         try:
-            job["ratingCount"] = soup.find(itemprop="ratingCount").get("content")
+            job["rating_count"] = soup.find(itemprop="ratingCount").get("content")
         except:
             pass
         try:
@@ -202,7 +204,7 @@ def get_page_data(links):
                 job["days_ago"] = divs[0].get_text()
         except:
             pass
-        job_db = Job(university=job["university"], title=job["title"], title_url=job["title_url"],salary=job["salary"],description=job["description"],company=job["company"],location=job["location"],days_ago=job["days_ago"],image=job["image"],logo=job["logo"],work_type=job["work_type"])
+        job_db = Job(university=job["university"], title=job["title"], rating_count=job["rating_count"], rating=job["rating"], title_url=job["title_url"],salary=job["salary"],description=job["description"],company=job["company"],location=job["location"],days_ago=job["days_ago"],image=job["image"],logo=job["logo"],work_type=job["work_type"])
         if Job.query.filter_by(title=job["title"]).first() is None:
             db.session.add(job_db)
             db.session.commit()

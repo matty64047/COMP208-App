@@ -14,7 +14,7 @@ auth = HTTPBasicAuth()
 def index():
     return "Server Running Correctly"
 
-@app.route('/api/user/create', methods=["POST"])
+@app.route('/api/users/create', methods=["POST"])
 def create_user():
     first_name = request.form.get("first_name")
     last_name = request.form.get("last_name")
@@ -31,7 +31,7 @@ def create_user():
     db.session.commit()
     return jsonify("Success"), 200
 
-@app.route('/api/user', methods=["GET", "PUT", "DELETE"])
+@app.route('/api/users', methods=["GET", "PUT", "DELETE"])
 @auth.login_required
 def user():
 
@@ -65,7 +65,7 @@ def user():
         db.session.commit()
         return jsonify("Success"), 200
 
-@app.route('/api/job', methods=["GET", "POST", "PUT", "DELETE"])
+@app.route('/api/jobs', methods=["GET", "POST", "PUT", "DELETE"])
 @auth.login_required
 def job():
 
@@ -79,9 +79,17 @@ def job():
 
     #Get jobs list
     if request.method == 'GET':
-        jobs =  job_suggestions.user_suggestions()
+        jobs = []
+        request_type = request.args.get('request_type')
+        if request_type == "most_popular":
+            jobs =  job_suggestions.most_popular_jobs()
+        if request_type == "recommended":
+            jobs =  job_suggestions.user_suggestions()
+        if request_type == "all":
+            jobs =  job_suggestions.all_jobs()
         if len(jobs) < 10:
-            jobs.append(random.sample(Job.query.all(), 10-len(jobs)))
+            random_sample = random.sample(Job.query.all(), 10-len(jobs))
+            jobs.extend(random_sample)
         return jsonify(Serializer.serialize_list(jobs)), 200
 
     if request.method == 'PUT' and g.user.type == "admin":
@@ -92,7 +100,7 @@ def job():
         db.session.commit()
         return jsonify("Success"), 200
 
-@app.route('/api/rating', methods=["GET", "POST", "PUT", "DELETE"])
+@app.route('/api/ratings', methods=["GET", "POST", "PUT", "DELETE"])
 @auth.login_required
 def rating():
 
@@ -108,7 +116,8 @@ def rating():
 
     #Get list of job ratings for user
     if request.method == 'GET':
-        ratings =  Serializer.serialize_list(Ratings.query.filter_by(user_id=g.user.id))
+        ratings = [item[0] for item in db.session.query(Job, Ratings.rating).join(Ratings).filter(Ratings.user_id==g.user.id, Ratings.rating==1).all()]
+        ratings =  Serializer.serialize_list(ratings)
         return jsonify(ratings), 200
     
     #Delete job rating

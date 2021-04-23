@@ -22,10 +22,8 @@ def most_popular_jobs():
     recommended_jobs = [x for x in most_popular_jobs if x not in already_seen_jobs]
     return recommended_jobs[0:10]
 
-
-def with_filters(filters):
-    return []
-
+def all_jobs():
+    return Job.query.all()
 
 """
     Uses a cosine distance function from a sparse matrix of user ratings 
