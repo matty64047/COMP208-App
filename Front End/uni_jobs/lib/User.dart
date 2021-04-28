@@ -4,7 +4,7 @@ import 'HTTP.dart';
 
 class User extends ChangeNotifier {
   bool isLoggedIn = false;
-  String email, password, firstName, lastName, university;
+  String email = "", password = "", firstName = "", lastName = "", university = "";
 
   User() {
     getUserDetails();
@@ -13,14 +13,14 @@ class User extends ChangeNotifier {
   getUserDetails() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     try {
-      isLoggedIn = prefs.getBool("isLoggedIn");
+      isLoggedIn = prefs.getBool("isLoggedIn")!;
     }
     catch (e) {
       await prefs.setBool("isLoggedIn", false);
     }
     if (isLoggedIn) {
-      email = prefs.get("email");
-      password = prefs.get("password");
+      email = prefs.get("email").toString();
+      password = prefs.get("password").toString();
       dynamic json = await getUser(email: email, password: password);
       this.firstName = json["first_name"];
       this.lastName = json["last_name"];
@@ -29,7 +29,7 @@ class User extends ChangeNotifier {
     notifyListeners();
   }
 
-  logIn(email, password) async {
+  Future<bool> logIn(email, password) async {
     bool correctDetails =  await verifyLogin(email:email, password:password);
     if (correctDetails) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -40,6 +40,7 @@ class User extends ChangeNotifier {
       this.password = password;
       isLoggedIn = true;
       notifyListeners();
+      return true;
     }
     else return false;
   }
@@ -49,8 +50,8 @@ class User extends ChangeNotifier {
     await prefs.clear();
     await prefs.setBool('isLoggedIn', false);
     isLoggedIn = false;
-    email = null;
-    password = null;
+    email = "";
+    password = "";
     notifyListeners();
   }
 

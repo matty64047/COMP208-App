@@ -1,3 +1,5 @@
+// @dart=2.9
+
 import 'package:flutter/material.dart';
 import '../User.dart';
 import 'package:provider/provider.dart';
@@ -13,9 +15,14 @@ TextStyle _style() {
 }
 
 class _AccountState extends State<Account> {
+
   @override
   Widget build(BuildContext context) {
     return Consumer<User>(builder: (context, user, child) {
+      String firstName = "";
+      String lastName = "";
+      String email = "";
+      String university = "";
       return Scaffold(
         appBar: CustomAppBar(user),
         body: Container(

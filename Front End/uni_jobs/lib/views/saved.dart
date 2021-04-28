@@ -1,3 +1,5 @@
+// @dart=2.9
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../Job.dart';
@@ -6,7 +8,7 @@ import '../User.dart';
 import 'package:provider/provider.dart';
 import '../widgets.dart';
 
-User user;
+User user = User();
 
 class Saved extends StatefulWidget {
   @override
@@ -15,7 +17,7 @@ class Saved extends StatefulWidget {
 
 class _SavedState extends State<Saved> {
   final streamController = StreamController<List<Job>>();
-  List favourites;
+  List<Job> favourites = [];
   final key = GlobalKey<AnimatedListState>();
 
   @override
@@ -148,19 +150,7 @@ class _SavedState extends State<Saved> {
                     );
                   },
                   key: UniqueKey(),
-                  child: InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return Container();
-                            },
-                            fullscreenDialog: true,
-                          ),
-                        );
-                      },
-                      child: savedJobCard(context, job)),
+                      child: savedJobCard(context, job),
                 );
               },
             );

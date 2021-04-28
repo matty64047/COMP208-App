@@ -1,3 +1,5 @@
+// @dart=2.9
+
 import 'package:flutter/material.dart';
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'jobs.dart';
@@ -11,12 +13,11 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> with TickerProviderStateMixin {
   int _currentIndex = 0;
-  PageController _pageController;
+  PageController _pageController = PageController();
 
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
   }
 
   @override

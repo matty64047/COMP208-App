@@ -1,3 +1,5 @@
+// @dart=2.9
+
 import 'dart:async';
 import 'package:spring_button/spring_button.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +20,7 @@ class _JobsState extends State<Jobs> with TickerProviderStateMixin {
   int currentCardIndex = 0;
   double leftSwipe = 0, rightSwipe = 0;
   double value = 0;
-  CardController controller;
+  CardController controller = new CardController();
   final streamController = StreamController<List>();
   TabController _tabController;
   List params = [
@@ -27,9 +29,9 @@ class _JobsState extends State<Jobs> with TickerProviderStateMixin {
     {"request_type": "all"}
   ];
   List titles = ["Recommended", "Most Popular", "Filter"];
-  String title;
-  Map<String, String> param;
-  User user;
+  String title = "";
+  Map<String, String> param = {};
+  User user = User();
 
   void onChanged(double newValue) {
     setState(() {
@@ -151,7 +153,7 @@ class _JobsState extends State<Jobs> with TickerProviderStateMixin {
             stream: streamController.stream,
             builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
               if (!snapshot.hasData) {
-                if (user.email != null) getJobsList();
+                getJobsList();
                 return Center(child: CircularProgressIndicator());
               }
               if (snapshot.connectionState == ConnectionState.done) {}
@@ -190,7 +192,7 @@ class _JobsState extends State<Jobs> with TickerProviderStateMixin {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) {
-                                      return Container();
+                                      return fullScreen(context, snapshot.data[index]);
                                     },
                                     fullscreenDialog: true,
                                   ),
@@ -341,65 +343,79 @@ class _JobsState extends State<Jobs> with TickerProviderStateMixin {
                   if (snapshot.hasError) {
                     return Container();
                   } else {
-                    List finalJobsList = [];
-                    List ratings;
-                    List salaries;
-                    var newMap = groupBy(snapshot.data, (obj) => obj.company);
+                    List<Job> finalJobsList = [];
+                    Map<String, List<Job>> newMap = groupBy(snapshot.data as List<Job>, (obj) => obj.company);
                     List companies = newMap.keys.toList();
                     companies.sort();
-                    int selectedChip;
-                    return Column(
-                      children: [
-                        Expanded(
-                          child: ListView(
-                            physics: BouncingScrollPhysics(),
-                            children: [
-                              new Wrap(
-                                children: List<Widget>.generate(
-                                    companies.length, (int index) {
-                                  return ChoiceChip(
-                                    selected: index == selectedChip,
-                                    onSelected: (selected) {
-                                      setState(() {
-                                        finalJobsList = finalJobsList +
-                                            newMap[companies[index]];
-                                      });
-                                    },
-                                    backgroundColor: Colors.transparent,
-                                    shape: StadiumBorder(
-                                        side: BorderSide(width: 0.1)),
-                                    label: Text(
-                                      companies[index],
-                                      style: TextStyle(fontSize: 11),
-                                    ),
-                                  );
-                                }),
+                    List isSelected = new List.filled(companies.length, false,
+                        growable: false);
+                    return StatefulBuilder(
+                        builder: (BuildContext context, StateSetter setState) {
+                      return Column(
+                        children: [
+                          Expanded(
+                            child: ListView(
+                              physics: BouncingScrollPhysics(),
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: new Wrap(
+                                    alignment: WrapAlignment.center,
+                                    children: List<Widget>.generate(
+                                        companies.length, (int index) {
+                                      return ChoiceChip(
+                                        selected: isSelected[index],
+                                        onSelected: (selected) {
+                                          setState(() {
+                                            isSelected[index] =
+                                                !isSelected[index];
+                                          });
+                                        },
+                                        backgroundColor: Colors.transparent,
+                                        shape: StadiumBorder(
+                                            side: BorderSide(width: 0.1)),
+                                        label: Text(
+                                          companies[index],
+                                          style: TextStyle(fontSize: 11),
+                                        ),
+                                      );
+                                    }),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              primary:
+                                  Theme.of(context).primaryColor, // background
+                              onPrimary: Colors.white, // foreground
+                            ),
+                            onPressed: () {
+                              for (int i = 0; i < isSelected.length; i++) {
+                                if (isSelected[i]) {
+                                  finalJobsList = finalJobsList+newMap[companies[i]];
+                                }
+                              }
+                              streamController.sink.add(finalJobsList);
+                              Navigator.pop(context);
+                            },
+                            child: Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.all(10),
+                              alignment: Alignment.center,
+                              child: Text(
+                                "Apply",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.bold),
                               ),
-                            ],
-                          ),
-                        ),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            primary: Theme.of(context).primaryColor, // background
-                            onPrimary: Colors.white, // foreground
-                          ),
-                          onPressed: () {
-                            streamController.sink.add(finalJobsList);
-                            Navigator.pop(context);
-                          },
-                          child: Container(
-                            width: double.infinity,
-                            padding: EdgeInsets.all(10),
-                            alignment: Alignment.center,
-                            child: Text("Apply", style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold
-                            ),),
-                          ),
-                        )
-                      ],
-                    );
+                            ),
+                          )
+                        ],
+                      );
+                    });
                   }
                 }),
           );

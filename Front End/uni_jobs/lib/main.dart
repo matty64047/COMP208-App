@@ -1,8 +1,11 @@
+// @dart=2.9
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uni_jobs/User.dart';
 import 'package:uni_jobs/views/home.dart';
 import 'package:uni_jobs/views/login.dart';
+import 'Login/login_screen.dart';
 
 void main() {
   runApp(
@@ -35,6 +38,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
   @override
   Widget build(BuildContext context) {
     return Consumer<User>(
@@ -42,7 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
         if (user.isLoggedIn) {
           return Home();
         }
-        else return Login();
+        else return LoginScreen();
       },
     );
   }

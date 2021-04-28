@@ -7,21 +7,21 @@ class Job {
   String added, university, rating, daysAgo, company, image, location, salary, description, title, titleURL, workType, logo;
 
   Job({
-    this.id,
-    this.added,
-    this.university,
-    this.company,
-    this.image,
-    this.logo,
-    this.location,
-    this.salary,
-    this.description,
-    this.title,
-    this.titleURL,
-    this.workType,
-    this.rating,
-    this.ratingCount,
-    this.daysAgo
+    required this.id,
+    required this.added,
+    required this.university,
+    required this.company,
+    required this.image,
+    required this.logo,
+    required this.location,
+    required this.salary,
+    required this.description,
+    required this.title,
+    required this.titleURL,
+    required this.workType,
+    required this.rating,
+    required this.ratingCount,
+    required this.daysAgo
   });
 
   factory Job.fromMap(Map<String, dynamic> json) => new Job(
