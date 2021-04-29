@@ -2,7 +2,7 @@ import 'package:http/http.dart';
 import 'dart:convert';
 import 'Job.dart';
 
-final String url = "http://Comp208app-env.eba-2prxdjrh.eu-west-2.elasticbeanstalk.com";
+final String url = "Comp208app-env.eba-2prxdjrh.eu-west-2.elasticbeanstalk.com";
 
 Future<bool> verifyLogin({email, password}) async {
   String basicAuth =  'Basic ' + base64Encode(utf8.encode('$email:$password'));
