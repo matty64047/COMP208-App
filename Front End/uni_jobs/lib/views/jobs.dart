@@ -88,235 +88,251 @@ class _JobsState extends State<Jobs> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Consumer<User>(builder: (context, user, child) {
-      return Scaffold(
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(90),
-          child: Material(
-            elevation: 10,
-            child: Column(
-              children: [
-                Container(
-                  height: MediaQuery.of(context).padding.top + 10,
-                ),
-                Container(
-                  width: 300,
-                  child: TabBar(
-                    labelColor: Colors.white,
-                    unselectedLabelColor: Theme.of(context).primaryColor,
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    indicator: BoxDecoration(
-                        color: Theme.of(context).primaryColor,
-                        shape: BoxShape.circle),
-                    controller: _tabController,
-                    tabs: [
-                      Tab(
-                        icon: Icon(
-                          Icons.bolt,
-                          size: 35,
-                        ),
-                      ),
-                      Tab(
-                        icon: Icon(
-                          Icons.trending_up,
-                          size: 35,
-                        ),
-                      ),
-                      Tab(
-                        icon: Icon(
-                          Icons.lightbulb_outline,
-                          size: 35,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                        color: Colors.grey, fontWeight: FontWeight.w200),
-                  ),
-                ),
+      return Container(
+        height: double.infinity,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          gradient: new LinearGradient(
+              colors: [
+                const Color.fromRGBO(255, 233, 225, 0.0),
+                const Color.fromRGBO(255, 233, 225, 0.0),
               ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              stops: [0.0, 1.0],
+              tileMode: TileMode.clamp),
+        ),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(90),
+            child: Material(
+              elevation: 10,
+              child: Column(
+                children: [
+                  Container(
+                    height: MediaQuery.of(context).padding.top + 10,
+                  ),
+                  Container(
+                    width: 300,
+                    child: TabBar(
+                      labelColor: Colors.white,
+                      unselectedLabelColor: Theme.of(context).primaryColor,
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      indicator: BoxDecoration(
+                          color: Theme.of(context).primaryColor,
+                          shape: BoxShape.circle),
+                      controller: _tabController,
+                      tabs: [
+                        Tab(
+                          icon: Icon(
+                            Icons.bolt,
+                            size: 35,
+                          ),
+                        ),
+                        Tab(
+                          icon: Icon(
+                            Icons.trending_up,
+                            size: 35,
+                          ),
+                        ),
+                        Tab(
+                          icon: Icon(
+                            Icons.lightbulb_outline,
+                            size: 35,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                          color: Colors.grey, fontWeight: FontWeight.w200),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-        body: Container(
-          /*decoration: BoxDecoration(
-              image: DecorationImage(
-                  image: AssetImage(""),
-                  fit: BoxFit.fitWidth
-              )
-          ),*/
-          child: StreamBuilder(
-            stream: streamController.stream,
-            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-              if (!snapshot.hasData) {
-                getJobsList();
-                return Center(child: CircularProgressIndicator());
-              }
-              if (snapshot.connectionState == ConnectionState.done) {}
-              if (snapshot.hasError) {
-                return Center(
-                  child: IconButton(
-                    icon: Icon(Icons.refresh),
-                    onPressed: () {
-                      getJobsList();
-                    },
-                  ),
-                );
-              }
-              return new Container(
-                child: Container(
-                  height: MediaQuery.of(context).size.height * 0.77,
-                  child: new TinderSwapCard(
-                    swipeUp: false,
-                    swipeDown: false,
-                    orientation: AmassOrientation.BOTTOM,
-                    totalNum: snapshot.data.length,
-                    stackNum: 2,
-                    animDuration: 200,
-                    maxWidth: MediaQuery.of(context).size.width * 0.95,
-                    maxHeight: MediaQuery.of(context).size.height * 0.75,
-                    minWidth: MediaQuery.of(context).size.width * 0.9,
-                    minHeight: MediaQuery.of(context).size.height * 0.7,
-                    cardBuilder: (context, index) => Hero(
-                      tag: snapshot.data[index].title,
-                      child: Card(
-                        child: Stack(
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) {
-                                      return fullScreen(context, snapshot.data[index]);
-                                    },
-                                    fullscreenDialog: true,
-                                  ),
-                                );
-                              },
-                              child: Stack(
-                                children: [
-                                  Center(
-                                      child: jobCard(
-                                          context, snapshot.data[index])),
-                                  Opacity(
-                                    opacity: getOpacity(index, rightSwipe),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          color:
-                                              Color.fromRGBO(3, 226, 107, 0.8),
-                                          borderRadius:
-                                              BorderRadius.circular(5)),
-                                      height: double.infinity,
-                                      width: double.infinity,
-                                    ),
-                                  ),
-                                  Opacity(
-                                    opacity: getOpacity(index, leftSwipe),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          color:
-                                              Color.fromRGBO(255, 72, 72, 0.8),
-                                          borderRadius:
-                                              BorderRadius.circular(5)),
-                                      height: double.infinity,
-                                      width: double.infinity,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 20,
-                              right: 20,
-                              //left: 20,
-                              child: SpringButton(
-                                SpringButtonType.OnlyScale,
-                                Card(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(40),
-                                  ),
-                                  color: Colors.deepPurpleAccent,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 15.0, horizontal: 30),
-                                    child: Text(
-                                      "Apply",
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                ),
-                                //scaleCoefficient: 1,
+          body: Container(
+            /*decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage(""),
+                    fit: BoxFit.fitWidth
+                )
+            ),*/
+            child: StreamBuilder(
+              stream: streamController.stream,
+              builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                if (!snapshot.hasData) {
+                  getJobsList();
+                  return Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.connectionState == ConnectionState.done) {}
+                if (snapshot.hasError) {
+                  return Center(
+                    child: IconButton(
+                      icon: Icon(Icons.refresh),
+                      onPressed: () {
+                        getJobsList();
+                      },
+                    ),
+                  );
+                }
+                return new Container(
+                  child: Container(
+                    height: MediaQuery.of(context).size.height * 0.77,
+                    child: new TinderSwapCard(
+                      swipeUp: false,
+                      swipeDown: false,
+                      orientation: AmassOrientation.BOTTOM,
+                      totalNum: snapshot.data.length,
+                      stackNum: 2,
+                      animDuration: 200,
+                      maxWidth: MediaQuery.of(context).size.width * 0.95,
+                      maxHeight: MediaQuery.of(context).size.height * 0.75,
+                      minWidth: MediaQuery.of(context).size.width * 0.9,
+                      minHeight: MediaQuery.of(context).size.height * 0.7,
+                      cardBuilder: (context, index) => Hero(
+                        tag: snapshot.data[index].title,
+                        child: Card(
+                          child: Stack(
+                            children: [
+                              InkWell(
                                 onTap: () {
-                                  rateJob(
-                                      email: user.email,
-                                      password: user.password,
-                                      rating: 2,
-                                      jobID: snapshot
-                                          .data[index].id); //favourite Job
-                                  controller.triggerRight();
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) {
+                                        return fullScreen(context, snapshot.data[index]);
+                                      },
+                                      fullscreenDialog: true,
+                                    ),
+                                  );
                                 },
+                                child: Stack(
+                                  children: [
+                                    Center(
+                                        child: jobCard(
+                                            context, snapshot.data[index])),
+                                    Opacity(
+                                      opacity: getOpacity(index, rightSwipe),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                            color:
+                                                Color.fromRGBO(3, 226, 107, 0.8),
+                                            borderRadius:
+                                                BorderRadius.circular(5)),
+                                        height: double.infinity,
+                                        width: double.infinity,
+                                      ),
+                                    ),
+                                    Opacity(
+                                      opacity: getOpacity(index, leftSwipe),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                            color:
+                                                Color.fromRGBO(255, 72, 72, 0.8),
+                                            borderRadius:
+                                                BorderRadius.circular(5)),
+                                        height: double.infinity,
+                                        width: double.infinity,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                              Positioned(
+                                bottom: 20,
+                                right: 20,
+                                //left: 20,
+                                child: SpringButton(
+                                  SpringButtonType.OnlyScale,
+                                  Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(40),
+                                    ),
+                                    color: Colors.deepPurpleAccent,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 15.0, horizontal: 30),
+                                      child: Text(
+                                        "Apply",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ),
+                                  //scaleCoefficient: 1,
+                                  onTap: () {
+                                    rateJob(
+                                        email: user.email,
+                                        password: user.password,
+                                        rating: 2,
+                                        jobID: snapshot
+                                            .data[index].id); //favourite Job
+                                    controller.triggerRight();
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    cardController: controller = CardController(),
-                    swipeUpdateCallback:
-                        (DragUpdateDetails details, Alignment align) {
-                      /// Get swiping card's alignment
-                      if (align.x.abs() > 3 && align.x < 0) {
-                        if (align.x.abs() / 20 > 1)
-                          leftSwipe = 1;
-                        else
-                          leftSwipe = (align.x.abs() - 3) / 20;
-                      } else if (align.x.abs() > 3 && align.x > 0) {
-                        if (align.x.abs() / 20 > 1)
-                          rightSwipe = 1;
-                        else
-                          rightSwipe = (align.x.abs() - 3) / 20;
-                      } else {
+                      cardController: controller = CardController(),
+                      swipeUpdateCallback:
+                          (DragUpdateDetails details, Alignment align) {
+                        /// Get swiping card's alignment
+                        if (align.x.abs() > 3 && align.x < 0) {
+                          if (align.x.abs() / 20 > 1)
+                            leftSwipe = 1;
+                          else
+                            leftSwipe = (align.x.abs() - 3) / 20;
+                        } else if (align.x.abs() > 3 && align.x > 0) {
+                          if (align.x.abs() / 20 > 1)
+                            rightSwipe = 1;
+                          else
+                            rightSwipe = (align.x.abs() - 3) / 20;
+                        } else {
+                          leftSwipe = 0;
+                          rightSwipe = 0;
+                        }
+                      },
+                      swipeCompleteCallback:
+                          (CardSwipeOrientation orientation, int index) {
+                        Job job = snapshot.data[index];
+                        if (orientation == CardSwipeOrientation.RIGHT) {
+                          rateJob(
+                              email: user.email,
+                              password: user.password,
+                              rating: 1,
+                              jobID: job.id); //like job
+                        }
+                        if (orientation == CardSwipeOrientation.LEFT) {
+                          rateJob(
+                              email: user.email,
+                              password: user.password,
+                              rating: -1,
+                              jobID: job.id); //dislike job
+                        }
+                        if (orientation != CardSwipeOrientation.RECOVER)
+                          currentCardIndex = index + 1;
+                        if (index == snapshot.data.length - 1) {
+                          streamController.sink.addError(Exception());
+                        }
                         leftSwipe = 0;
                         rightSwipe = 0;
-                      }
-                    },
-                    swipeCompleteCallback:
-                        (CardSwipeOrientation orientation, int index) {
-                      Job job = snapshot.data[index];
-                      if (orientation == CardSwipeOrientation.RIGHT) {
-                        rateJob(
-                            email: user.email,
-                            password: user.password,
-                            rating: 1,
-                            jobID: job.id); //like job
-                      }
-                      if (orientation == CardSwipeOrientation.LEFT) {
-                        rateJob(
-                            email: user.email,
-                            password: user.password,
-                            rating: -1,
-                            jobID: job.id); //dislike job
-                      }
-                      if (orientation != CardSwipeOrientation.RECOVER)
-                        currentCardIndex = index + 1;
-                      if (index == snapshot.data.length - 1) {
-                        streamController.sink.addError(Exception());
-                      }
-                      leftSwipe = 0;
-                      rightSwipe = 0;
-                    },
+                      },
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       );

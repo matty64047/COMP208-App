@@ -284,114 +284,117 @@ Widget fullScreen(BuildContext context, Job job) {
   }
 
   return Scaffold(
-      body: NestedScrollView(
-        //physics: BouncingScrollPhysics(),
-    headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-      return <Widget>[
-        SliverAppBar(
-          actions: [
-            IconButton(
-              tooltip: "Open in browser",
-              icon: Icon(Icons.open_in_browser),
-              onPressed: () {
-                _launchURL(job.titleURL);
-              },
-            ),
-          ],
-          backgroundColor: Colors.white,
-          expandedHeight: 200.0,
-          floating: false,
-          pinned: true,
-          flexibleSpace: FlexibleSpaceBar(
-              centerTitle: true,
-              /*title: Text(
+    body: NestedScrollView(
+      scrollBehavior: ScrollBehavior(),
+      physics: BouncingScrollPhysics(),
+      headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+        return <Widget>[
+          SliverAppBar(
+            actions: [
+              IconButton(
+                tooltip: "Open in browser",
+                icon: Icon(Icons.open_in_browser),
+                onPressed: () {
+                  _launchURL(job.titleURL);
+                },
+              ),
+            ],
+            backgroundColor: Colors.white,
+            expandedHeight: 200.0,
+            floating: false,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+                centerTitle: true,
+                /*title: Text(
                 job.company.toUpperCase(),
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: 20.0,
                 ),
               ),*/
-              background: image),
-        ),
-      ];
-    },
-    body: Container(
-      height: double.infinity,
-      width: double.infinity,
-      child: ListView(
-        physics: BouncingScrollPhysics(),
-        children: [
-          Container(
-            child: Container(
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: AutoSizeText(
-                      job.title,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      style:
-                          TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Visibility(
-                    visible: true,
-                    child: DefaultTextStyle(
-                      style: TextStyle(fontSize: 13, color: Colors.grey[500]),
-                      child: Wrap(
-                        spacing: 3.0,
-                        alignment: WrapAlignment.center,
-                        children: [
-                          Visibility(
-                            visible: job.company.length > 0,
-                            child: Icon(
-                              Icons.work_outline,
-                              color: Colors.blue[300],
-                              size: 15,
-                            ),
-                          ),
-                          Text(job.company),
-                          Visibility(
-                            visible: job.location.length > 0,
-                            child: Icon(
-                              Icons.push_pin,
-                              color: Colors.red[300],
-                              size: 15,
-                            ),
-                          ),
-                          Text(job.location),
-                          ratingBar
-                        ],
+                background: image),
+          ),
+        ];
+      },
+      body: Container(
+        height: double.infinity,
+        width: double.infinity,
+        child: ListView(
+          physics: BouncingScrollPhysics(),
+          children: [
+            Container(
+              child: Container(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: AutoSizeText(
+                        job.title,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        style: TextStyle(
+                            fontSize: 25, fontWeight: FontWeight.bold),
                       ),
                     ),
-                  ),
-                  Wrap(
-                    spacing: 3.0,
-                    runSpacing: 0.0,
-                    alignment: WrapAlignment.center,
-                    children: List<Widget>.generate(chips.length, (int index) {
-                      return Chip(
-                        backgroundColor: Colors.transparent,
-                        shape: StadiumBorder(side: BorderSide(width: 0.1)),
-                        label: Text(
-                          chips[index],
-                          style: TextStyle(fontSize: 11),
+                    Visibility(
+                      visible: true,
+                      child: DefaultTextStyle(
+                        style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+                        child: Wrap(
+                          spacing: 3.0,
+                          alignment: WrapAlignment.center,
+                          children: [
+                            Visibility(
+                              visible: job.company.length > 0,
+                              child: Icon(
+                                Icons.work_outline,
+                                color: Colors.blue[300],
+                                size: 15,
+                              ),
+                            ),
+                            Text(job.company),
+                            Visibility(
+                              visible: job.location.length > 0,
+                              child: Icon(
+                                Icons.push_pin,
+                                color: Colors.red[300],
+                                size: 15,
+                              ),
+                            ),
+                            Text(job.location),
+                            ratingBar
+                          ],
                         ),
-                      );
-                    }),
-                  ),
-                  Container(
-                    child: Html(
-                      data: job.description,
+                      ),
                     ),
-                  ),
-                ],
+                    Wrap(
+                      spacing: 3.0,
+                      runSpacing: 0.0,
+                      alignment: WrapAlignment.center,
+                      children:
+                          List<Widget>.generate(chips.length, (int index) {
+                        return Chip(
+                          backgroundColor: Colors.transparent,
+                          shape: StadiumBorder(side: BorderSide(width: 0.1)),
+                          label: Text(
+                            chips[index],
+                            style: TextStyle(fontSize: 11),
+                          ),
+                        );
+                      }),
+                    ),
+                    Container(
+                      child: Html(
+                        data: job.description,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     ),
-  ));
+  );
 }

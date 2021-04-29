@@ -7,6 +7,7 @@ import '../HTTP.dart';
 import '../User.dart';
 import 'package:provider/provider.dart';
 import '../widgets.dart';
+import 'package:flutter_search_bar/flutter_search_bar.dart';
 
 User user = User();
 
@@ -62,6 +63,13 @@ class _SavedState extends State<Saved> {
   }
 
   TextEditingController textEditingController = new TextEditingController();
+  SearchBar searchBar;
+
+  AppBar buildAppBar(BuildContext context) {
+    return new AppBar(
+        title: new Text('Saved'),
+        actions: [searchBar.getSearchAction(context)]);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,8 +94,8 @@ class _SavedState extends State<Saved> {
         title: TextFormField(
           textAlignVertical: TextAlignVertical.top,
           decoration: InputDecoration(
-              labelText: "Search...",
-              icon: Icon(Icons.search),
+            labelText: "Search...",
+            icon: Icon(Icons.search),
           ),
           controller: textEditingController,
           onChanged: onChanged,
@@ -125,7 +133,10 @@ class _SavedState extends State<Saved> {
                 Job job = snapshot.data[index];
                 return Dismissible(
                   onDismissed: (direction) {
-                    deleteRating(email: user.email, password: user.password, jobID: job.id);
+                    deleteRating(
+                        email: user.email,
+                        password: user.password,
+                        jobID: job.id);
                   },
                   confirmDismiss: (direction) async {
                     return await showDialog(
@@ -150,7 +161,7 @@ class _SavedState extends State<Saved> {
                     );
                   },
                   key: UniqueKey(),
-                      child: savedJobCard(context, job),
+                  child: savedJobCard(context, job),
                 );
               },
             );

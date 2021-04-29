@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uni_jobs/User.dart';
 import 'package:uni_jobs/views/home.dart';
-import 'package:uni_jobs/views/login.dart';
 import 'Login/login_screen.dart';
 
 void main() {

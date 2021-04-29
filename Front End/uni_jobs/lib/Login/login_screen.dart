@@ -5,6 +5,7 @@ import 'package:uni_jobs/HTTP.dart';
 import 'constants.dart';
 import '../User.dart';
 import 'package:provider/provider.dart';
+import 'onboarding.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -34,9 +35,15 @@ class _LoginScreenState extends State<LoginScreen> {
           firstName: "",
           lastName: "")) {
         Future.delayed(loginTime).then((_) async {
-          bool response = await user.logIn(data.name, data.password);
-          if (!response) return "Incorrect Login Details";
-          return null;
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return OnBoardingPage(data: data, key: UniqueKey(),);
+              },
+              fullscreenDialog: true,
+            ),
+          );
         });
       } else
         return "User sign up failed";
