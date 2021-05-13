@@ -10,10 +10,10 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-city_list = ["Liverpool"]
-query_terms = ["part+time"]
+city_list = ["Liverpool", "Manchester"]
+query_terms = "part+time"
 current_city = 0
-BASE = "http://uk.indeed.com/jobs?q=part+time&l="
+BASE = "http://uk.indeed.com/jobs?q="+query_terms+"&l="
 jobs = []
 working_proxy_list = []
 proxy_pool = cycle(working_proxy_list)
